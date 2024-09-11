@@ -7,7 +7,7 @@
 
 def mostra_info()
   nome_programma = 'CodeShrink'
-  versione = '0.0.3'
+  versione = '0.1.0'
   descrizione = 'CodeShrink 🐍✨ is a powerful and intuitive tool for compressing and decompressing Python scripts. With CodeShrink, you can easily reduce the size of your Python files while keeping the structure and functionality of your code intact.'
 
   puts "Nome del programma: #{nome_programma}"

@@ -51,19 +51,31 @@ def compress_script(code):
     compressed_code = compress_zlib(code)
     return compressed_code
 
-def decompress_script(compressed_code):
-    # Passo 1: Decompress zlib
-    code = decompress_zlib(compressed_code)
-    # Passo 2: Ripristina le parole chiave originali
-    code = decompress_keywords(code)
-    return code
+def create_self_decompressor(compressed_code):
+    # Template per lo script auto-decompressivo
+    decompressor_code = f"""
+import zlib
+
+compressed_data = {compressed_code}
+
+def decompress_and_execute():
+    # Decompress the data
+    decompressed_code = zlib.decompress(compressed_data).decode('utf-8')
+
+    # Esegui il codice decompresso
+    exec(decompressed_code)
+
+# Avvia decompressione ed esecuzione
+decompress_and_execute()
+    """
+    return decompressor_code
 
 def read_file(file_path):
     with open(file_path, 'r') as file:
         return file.read()
 
 def write_file(file_path, data):
-    with open(file_path, 'wb') as file:
+    with open(file_path, 'w') as file:
         file.write(data)
 
 def main():
@@ -72,14 +84,13 @@ def main():
 
     while True:
         print("\nMenu:")
-        print("1. Comprimi script Python da file")
-        print("2. Decodifica script compresso da file")
-        print("3. Esci")
+        print("1. Comprimi script Python da file e renderlo auto-decompressivo")
+        print("2. Esci")
         choice = input("Seleziona un'opzione: ")
 
         if choice == '1':
             input_name = input("\nInserisci il nome del file Python da comprimere (con estensione .py):\n")
-            output_name = input("Inserisci il nome del file di output per il risultato compresso (senza estensione):\n") + ".bin"
+            output_name = input("Inserisci il nome del file di output auto-decompressivo (con estensione .py):\n")
 
             # Costruisci il percorso completo del file di input e output
             input_file = os.path.join(base_dir, input_name)
@@ -91,31 +102,14 @@ def main():
             # Comprimi lo script
             compressed_script = compress_script(code)
 
-            # Scrivi il risultato compresso su file
-            write_file(output_file, compressed_script)
-            print(f"\nScript compresso e salvato in {output_file}")
+            # Crea il file auto-decompressivo
+            self_decompressing_script = create_self_decompressor(compressed_script)
+
+            # Scrivi lo script auto-decompressivo su file
+            write_file(output_file, self_decompressing_script)
+            print(f"\nScript auto-decompressivo salvato in {output_file}")
 
         elif choice == '2':
-            input_name = input("\nInserisci il nome del file compresso da decodificare (con estensione .bin):\n")
-            output_name = input("Inserisci il nome del file di output per lo script decodificato (con estensione .py):\n")
-
-            # Costruisci il percorso completo del file di input e output
-            input_file = os.path.join(base_dir, input_name)
-            output_file = os.path.join(base_dir, output_name)
-
-            # Legge il codice compresso dal file
-            with open(input_file, 'rb') as file:
-                compressed_code = file.read()
-
-            # Decomprimi lo script
-            decoded_script = decompress_script(compressed_code)
-
-            # Salva lo script decodificato su file
-            with open(output_file, 'w') as file:
-                file.write(decoded_script)
-            print(f"\nScript decodificato e salvato in {output_file}")
-
-        elif choice == '3':
             print("Uscita...")
             break
 
@@ -124,7 +118,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
 
 
